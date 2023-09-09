@@ -3,10 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 const memberSlice = createSlice({
   name: "member",
   initialState: {
-    name: "Mahran",
-    total_outstanding: 2300,
+    activeComponent: "list",
   },
-  reducers: {},
+  reducers: {
+    changeActiveComponent(state, { payload }) {
+      state.activeComponent = payload;
+    },
+  },
 });
 
+export const { changeActiveComponent } = memberSlice.actions;
 export default memberSlice.reducer;
