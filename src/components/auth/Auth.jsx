@@ -31,12 +31,13 @@ const Auth = () => {
   };
   return (
     <div className="flex h-screen justify-center items-center">
-      <div className="w-1/5 text-center h-[50%]">
+      <div className="w-full max-w-[500px] text-center h-[50%]">
         <h1 className="text-4xl font-bold">Memberz</h1>
         <div className="p-5">
           <input
             className="input-text mb-3 "
             placeholder="Email"
+            type="email"
             onChange={(e) => {
               setEmail(e.target.value);
             }}

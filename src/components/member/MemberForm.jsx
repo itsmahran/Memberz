@@ -1,15 +1,29 @@
 import React, { useState } from "react";
-import { changeActiveComponent } from "../../app/members/memberSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { db } from "../../config/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import moment from "moment";
+import { Button, Checkbox, Input, Link } from "@nextui-org/react";
+import { setNavState } from "../../app/appSlice";
+import { useNavigate } from "react-router-dom";
+import { FaChevronLeft } from "react-icons/fa";
 
 const MemberForm = () => {
   const [isOutstanding, setIsOutstanding] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [openingBalance, setOpeingBalance] = useState("");
+  const [outstandingBalance, setIsOutstandingBalance] = useState("");
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const memberCollectionRef = collection(db, "members");
+
+  const { redirectBackToPageId } = useSelector((state) => state.app.navState);
+  const { redirectBackToPageComponent } = useSelector(
+    (state) => state.app.navState
+  );
 
   const handleIsOutstanding = () => {
     setIsOutstanding((prev) => !prev);
@@ -17,145 +31,179 @@ const MemberForm = () => {
   };
 
   const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = {
+      name: name,
+      email: email,
+      isOutstanding: isOutstanding,
+      openingBalance: isOutstanding
+        ? Number(outstandingBalance) * 100
+        : Number(openingBalance) * 100,
+      active: true,
+      joinedDateTime: Timestamp.fromMillis(new Date(moment().unix())),
+    };
+
     const addMember = async () => {
-      await addDoc(memberCollectionRef, {
-        name: "Mahran",
-        email: "mahran.996@gmail.com",
-        active: false,
-      });
+      try {
+        await addDoc(memberCollectionRef, data);
+      } catch (err) {
+        console.error(err);
+      }
     };
     addMember();
-    dispatch(changeActiveComponent("list"));
+    dispatch(
+      setNavState({
+        currentPageId:
+          redirectBackToPageId !== null ? redirectBackToPageId : "member",
+        activeMainComponent:
+          redirectBackToPageComponent !== null
+            ? redirectBackToPageComponent
+            : "list",
+        redirectBackToPageId: null,
+        redirectBackToPageComponent: null,
+      })
+    );
+
+    if (redirectBackToPageId !== null) {
+      navigate("/payment");
+    }
     e.preventDefault();
   };
 
-  return (
-    <form
-      onSubmit={(e) => {
-        handleSubmit(e);
-      }}
-    >
-      <span className="mb-5 block text-2xl">Personal details</span>
-      <div className="flex gap-5 w-8/12">
-        <div className="sm:col-span-3 flex-1">
-          <label
-            htmlFor="first-name"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Name
-          </label>
-          <div className="mt-2">
-            <input
-              type="text"
-              name="name"
-              id="first-name"
-              autoComplete="given-name"
-              className="input-text"
-            />
-          </div>
-        </div>
-        <div className="sm:col-span-3 flex-1">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Email
-          </label>
-          <div className="mt-2">
-            <input
-              type="email"
-              name="name"
-              id="email"
-              autoComplete="given-name"
-              className="input-text"
-            />
-          </div>
-        </div>
-      </div>
+  const handleBackButton = () => {
+    dispatch(setNavState({ activeMainComponent: "list" }));
+  };
 
-      <span className="mt-8 mb-5 block text-2xl">Payment details</span>
-      <div className="flex gap-5 w-8/12 mt-4">
-        <div className="sm:col-span-3 flex-1">
-          <fieldset>
-            <legend className="text-sm font-semibold leading-6 text-gray-900">
-              Balance
-            </legend>
-            <div className="space-y-6">
-              <div className="relative flex gap-x-3">
-                <div className="flex h-6 items-center">
-                  <input
-                    id="comments"
-                    name="comments"
-                    type="checkbox"
-                    onChange={handleIsOutstanding}
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  />
-                </div>
-                <div className="text-sm leading-6">
-                  <label htmlFor="comments" className="text-gray-900">
-                    Does the user have an outstanding balance?
-                  </label>
+  return (
+    <>
+      <div className="flex justify-start items-center gap-3">
+        <Button
+          color="secondary"
+          isIconOnly
+          className="text-gray-600"
+          onClick={handleBackButton}
+        >
+          <FaChevronLeft />
+        </Button>
+        <h1 className="text-xl font-bold text-secondary">
+          <Link color="secondary" className="text-xl" href="#">
+            Members
+          </Link>{" "}
+          / <span className="text-gray-900">Add Member</span>
+        </h1>
+      </div>
+      <form
+        className="mt-10"
+        onSubmit={(e) => {
+          handleSubmit(e);
+        }}
+      >
+        <span className="mb-5 block text-md text-gray-500 font-bold">Personal details</span>
+        <div className="flex gap-5 w-8/12">
+          <div className="sm:col-span-3 flex-1">
+            <div className="">
+              <Input
+                type="text"
+                name="name"
+                label="Name"
+                id="name"
+                autoComplete="given-name"
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="sm:col-span-3 flex-1">
+            <div className="mt-2">
+              <Input
+                type="email"
+                name="name"
+                id="email"
+                label="Email"
+                autoComplete="given-name"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <span className="mt-8 mb-5 block text-md text-gray-500 font-bold">Payment details</span>
+        <div className="flex gap-5 w-8/12 mt-4">
+          <div className="sm:col-span-3 flex-1">
+            <fieldset>
+              <div className="space-y-6">
+                <div className="relative flex gap-x-1">
+                  <div className="flex h-6 items-center">
+                    <Checkbox
+                      id="comments"
+                      name="comments"
+                      type="checkbox"
+                      onChange={handleIsOutstanding}
+                    >
+                      Does the user have an outstanding balance?
+                    </Checkbox>
+                  </div>
                 </div>
               </div>
-            </div>
-          </fieldset>
-        </div>
-      </div>
-      {isOutstanding ? (
-        <div className="flex gap-5 w-4/12 mt-4">
-          <div className="sm:col-span-3 flex-1">
-            <label
-              htmlFor="outstanding-balance"
-              className="block text-sm font-medium leading-6 text-gray-900"
-            >
-              Outstanding balance
-            </label>
-            <div className="mt-2">
-              <input
-                type="text"
-                name="name"
-                id="outstanding-balance"
-                autoComplete="given-name"
-                className="input-text"
-              />
-            </div>
+            </fieldset>
           </div>
         </div>
-      ) : (
-        <div className="flex gap-5 w-4/12 mt-4">
-          <div className="sm:col-span-3 flex-1">
-            <label
-              htmlFor="opening-balance"
-              className="block text-sm font-medium leading-6 text-gray-900"
-            >
-              Opening balance
-            </label>
-            <div className="mt-2">
-              <input
-                type="text"
-                name="name"
-                id="opening-balance"
-                autoComplete="given-name"
-                className="input-text"
-              />
+        {isOutstanding ? (
+          <div className="flex gap-5 w-4/12 mt-4">
+            <div className="sm:col-span-3 flex-1">
+              <div className="mt-2">
+                <Input
+                  type="number"
+                  pattern="[0-9]+(\\.[0-9][0-9]?)?"
+                  name="name"
+                  label="Outstanding balance"
+                  id="outstanding-balance"
+                  autoComplete="given-name"
+                  className="input-text"
+                  onChange={(e) => {
+                    setIsOutstandingBalance(e.target.value);
+                  }}
+                />
+              </div>
             </div>
           </div>
+        ) : (
+          <div className="flex gap-5 w-4/12 mt-4">
+            <div className="sm:col-span-3 flex-1">
+              <div className="mt-2">
+                <Input
+                  type="number"
+                  pattern="[0-9]+(\\.[0-9][0-9]?)?"
+                  name="name"
+                  label="Opening balance"
+                  id="opening-balance"
+                  autoComplete="given-name"
+                  className="input-text"
+                  onChange={(e) => {
+                    setOpeingBalance(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="mt-8 flex gap-3">
+          <Button color="primary" type="submit">
+            Add Member
+          </Button>
+          <Button
+            onClick={() => {
+              dispatch(setNavState({ activeMainComponent: "list" }));
+            }}
+          >
+            Cancel
+          </Button>
         </div>
-      )}
-      <div className="mt-8 flex gap-3">
-        <button className="button bg-slate-600 text-white" type="submit">
-          Add Member
-        </button>
-        <button
-          className="button bg-slate-300 text-slate-700"
-          onClick={() => {
-            dispatch(changeActiveComponent("list"));
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+      </form>
+    </>
   );
 };
 

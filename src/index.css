@@ -2,10 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-.input-text {
+/* input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="number"] {
   @apply block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 focus:outline-none;
-}
+} */
 
 .button {
   @apply block rounded-md py-1.5 px-4;
+}
+
+.bg-primary {
+  @apply bg-orange-600;
+}
+
+.bg-secondary {
+  @apply bg-gray-100;
+}
+
+.text-primary {
+  @apply text-orange-600;
+}
+
+.text-secondary {
+  @apply text-gray-500;
+}
+
+.sidebar-nav .nav-link {
+  @apply p-3 w-full flex gap-3 items-baseline rounded-xl text-sm;
+}
+
+.sidebar-nav .nav-link.active {
+  @apply bg-white text-orange-600 shadow-md;
+}
+
+*::-webkit-scrollbar {
+  @apply w-2
+}
+
+*::-webkit-scrollbar-track {
+  @apply bg-transparent
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply bg-gray-900 bg-opacity-10 rounded-full px-3
+}
+
+a{
+  @apply text-gray-500
 }

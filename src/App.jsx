@@ -9,7 +9,8 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import Members from "./pages/Members";
+import Member from "./pages/Member/Member";
+import Payments from "./pages/Payments";
 import Navbar from "./components/layout/Navbar";
 import Sidebar from "./components/layout/Sidebar";
 import { store } from "./store";
@@ -17,13 +18,18 @@ import Auth from "./components/auth/Auth";
 import { auth } from "./config/firebase";
 import { setIsUserSignedIn } from "./app/auth/authSlice";
 import { setIsAppLoading } from "./app/appSlice";
+import Expenses from "./pages/Expenses";
 
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<Root />}>
         <Route index element={<Home />} />
-        <Route path="/members" element={<Members />} />
+        <Route path="/member" element={<Member />} >
+          
+        </Route>
+        <Route path="/payment" element={<Payments />} />
+        <Route path="/expense" element={<Expenses />} />
       </Route>
     )
   );
@@ -61,7 +67,7 @@ const Root = () => {
         <>
           <Sidebar />
           <div className="flex">
-            <aside className="w-1/6 h-screen"></aside>
+            <aside className="w-1/6 h-screen hidden sm:block"></aside>
             <div className="flex-1">
               <Navbar />
               <div className="p-6">
